@@ -1,3 +1,3 @@
 # CIBER
 
-Codes will be released soon.
+Codes will be uploaded soon.
