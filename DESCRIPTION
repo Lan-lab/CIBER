@@ -1,0 +1,20 @@
+Package: ciber
+Title: Learn the underlying hierarchies in the data
+Version: 0.0.0.9000
+Authors@R: 
+    person("Hengyi", "Xu", , "xhy18006@student.pumc.edu.cn", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-5772-0661"))
+Description: Learn the underlying hierarchies in the data
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.1
+Imports: bnlearn, corpcor, doParallel, dplyr, foreach, GeneNet, glasso,
+        graph, igraph, infotheo, magrittr, MASS, Matrix, matrixStats,
+        parallel, Rgraphviz, rlang, statmod, tibble, tidyr, tidyselect
+Depends: R (>= 3.5.0)
+LazyData: true
+NeedsCompilation: no
+Packaged: 2024-03-20 14:02:20 UTC; lanrotate
+Author: Hengyi Xu [aut, cre] (<https://orcid.org/0000-0002-5772-0661>)
+Maintainer: Hengyi Xu <xhy18006@student.pumc.edu.cn>

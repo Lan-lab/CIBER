@@ -1,0 +1,336 @@
+---
+title: "ciber"
+author: "lanlab"
+date: "3/20/2024"
+output:
+  html_document: default
+  word_document: default
+---
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = F,message=F)
+```
+
+## Package downloading and installing
+
+This is a help document for package `ciber`. To use ciber, several packages should be downloaded in advance. Our package can be downloaded from <http://github.com/Lan-lab/CIBER>. `ciber` package can be installed through source code file **ciber.tar.gz**. 
+
+Note: 
+  package`Matrix`in this help document is Version 1.3-4
+package`bnlearn`in this help document is Version 4.7
+package`Seurat`in this help document is Version 3.1.5
+package`space`in this help document is Version 0.1-1.1
+
+```{r cars}
+library(Seurat) # If processing single cell data, Seurat is necessary.
+library(foreach)
+library(dplyr) # These two packages is useful for parallel processing and speeding up
+library(bnlearn) # Core package
+library(Matrix) # Core package
+library(space) # Core package
+
+# install.packages("ciber.tar.gz", repos = NULL, type = "source")
+library(ciber) 
+```
+
+## learn graph structure from microarray data
+
+### get data
+
+Get test data: HMMA
+HMMA is a microarray data of HSC differentiation which has 11 different cell types with 21678 genes. 
+
+11 cell types can be divided into 2 lineages: myeloid and lymphoid. 
+Including:
+  early differentiation——HSC, MPPa, MPPb
+myeloid cell types——sCMP, MEP, GMP, MkP, pCFU-E
+lymphoid cell types——CLP, BLP, DN1
+
+```{r HMMA}
+data("HMMA")
+head(HMMA)
+ctypes <- colnames(HMMA)
+ctypes
+```
+
+### learn structure set
+
+By `BNLearning` function, ciber can learn directed graph structure from microarray data. We can give a set of parameters in and `BNLearning` will give back a list of network structures back. Besides, different methods for calculating indirect graph and different methods for calculation directions can be chosen. **cmi2ni** is the most frequently used indirect graph calculating method while **hc** is the most frequently used direction calculation method.
+
+```{r test}
+test <- HMMA[names(HMMA_glist)[1:3000],]
+net_struc_ori <- BNLearning(test,params=seq(from=0.08,to=0.23,length.out=10),
+                            root='HSC',mode='bulk',ncores=5)
+net_struc_ori[[1]] # net_struc_ori is a list of graphs of different parameters
+graphviz.plot(net_struc_ori[[1]],shape='ellipse') # View the first graph
+```
+
+### combine structure set to get a reasonable network structure
+
+After `BNLearning`, we get a list of graph structures waiting to be combined. We can use the function `combineDAGs` for the combination of graph structures. Then, function `df2mat` can be used to give a glimpse; function `rmCyc` can be used for circle removement.
+
+The Emin is usually 1-2 times of node number.
+while Emax is usually 2-3 times of node number.
+
+```{r combineDAGs}
+library(tidyr)
+net_struc <- combineDAGs(net_struc_ori,Emin=20,Emax=30)
+df2mat(net_struc) # take a glimpse 
+df2mat(rmCyc(net_struc)) # remove the circle
+net_struc <- rmCyc(net_struc)
+```
+
+### modify structure according to bnlearn result
+
+Then, we can use function `trimDAG` for the adjustment of network structure. By adding HMMA and primary structure into function, trimDAG return the modified structure according to the given parameters: min_arc; max_arc; threshold_value.
+
+Usually, min_arc is 1 or 2, max_arc is 3 or 4, threshold_value is from 0.8 to 1.
+Sometimes, trimDAG need to be used for more than one round on different gene sets to get the desired structure.
+
+```{r ma_modify}
+e <-  empty.graph(ctypes)
+strc1 <- (net_struc)[,1:2]
+strc1[,1]=as.character(strc1[,1])
+strc1[,2]=as.character(strc1[,2])
+arcs(e) <-  strc1
+e <- trimDAG(HMMA,e,2,3,1)
+e
+```
+
+Add different color.
+
+```{r ma color}
+library(igraph)
+library(graph)
+library(Rgraphviz)
+draw_para <- list(fill=c("HSC"='#9A9A99',
+                         "MPPa"='#B69D75',
+                         "MPPb"='#806342',
+                         "CLP"='#76A9E0',
+                         "GMP"='#A4C362',
+                         "MEP"='#D59546',
+                         "pCFU-E"='#B63728',
+                         "MkP"='#EACF5C',
+                         "DN1"='#838BC3',
+                         "sCMP"='#F6ED64',
+                         "BLP"='#7A97DC'))
+tmp=graphviz.plot(e,shape = 'circle',main=paste0('Method used: ','hc'),render = F)
+nodeRenderInfo(tmp) <- draw_para
+renderGraph(tmp)
+```
+
+## get diffBN from microarray data
+
+After getting a desired network structure, we can use functions below to calculate the diffBN result.
+1. `EffectMatrix`: use this function to get the diffBN result of every gene
+
+```{r diffBN}
+diffBN <- EffectMatrix(net_struc = e,data = HMMA[1:10,],mode = 'bulk',ncores = 5) # ger diffBN summary
+head(diffBN[,1:6])
+```
+### try another network-construction method
+
+Besides 'hc' in the dagMethod, CIBER support different network-construction method including the hybrid method 'mmhc' and non-hybrid method 'tabu'.
+
+Method tabu:
+```{r ma tabu}
+test <- HMMA[names(HMMA_glist)[1:3000],]
+net_struc_ori <- BNLearning(test,params=seq(from=0.08,to=0.23,length.out=10),
+                            root='HSC',mode='bulk',ncores=5,dagMethod='tabu')
+net_struc <- rmCyc(combineDAGs(net_struc_ori,Emin=20,Emax=30))
+e <-  empty.graph(ctypes)
+strc1 <- (net_struc)[,1:2];strc1[,1]=as.character(strc1[,1]);strc1[,2]=as.character(strc1[,2])
+arcs(e) <-  strc1
+e <- trimDAG(HMMA,e,2,3,1)
+tmp=graphviz.plot(e,shape = 'circle',main=paste0('Method used: ','tabu'),render = F)
+nodeRenderInfo(tmp) <- draw_para
+renderGraph(tmp)
+```
+
+Method mmhc:
+```{r ma mmhc}
+test <- HMMA[names(HMMA_glist)[1:3000],]
+net_struc_ori <- BNLearning(test,params=seq(from=0.08,to=0.23,length.out=10),
+                            root='HSC',mode='bulk',ncores=5,dagMethod='mmhc')
+net_struc <- rmCyc(combineDAGs(net_struc_ori,Emin=20,Emax=30))
+e <-  empty.graph(ctypes)
+strc1 <- (net_struc)[,1:2];strc1[,1]=as.character(strc1[,1]);strc1[,2]=as.character(strc1[,2])
+arcs(e) <-  strc1
+e <- trimDAG(HMMA,e,2,3,1)
+tmp=graphviz.plot(e,shape = 'circle',main=paste0('Method used: ','mmhc'),render = F)
+nodeRenderInfo(tmp) <- draw_para
+renderGraph(tmp)
+```
+
+## learn graph structure from single cell data
+
+### get data
+
+Get test data: HHATAC_TF
+HHATAC_TF is a single cell atac-seq data of human HSC differentiation. 
+
+9 cell types including:
+"HSC"  "MPP"  "LMPP" "CMP"  "CLP"  "MEP"  "GMP"  "pDC"  "mono"
+
+```{r HHATAC_TF}
+data("HHATAC_TF")
+data("HHATAC_TF_glist")
+head(HHATAC_TF[,1:10])
+ctypes <- names(table(HHATAC_TF$celltype))
+ctypes
+atac_data <- gem2mem(as.data.frame(HHATAC_TF@assays$RNA@data),meta = HHATAC_TF$celltype,FUN = 'mean')
+```
+
+### learn structure set
+
+For single cell data, function `BNLearning` is used to get the network structure set just as the function `BNLearning` for microarray data.
+
+Different from BNLearning, BNLearning is the function that considers all the parameters in "params" and cell samplings to get a group of net structures based on ugMethod and dagMethod. BNLearning is suitable for single cell data in SeuratObject format.
+
+```{r BNLearning}
+Idents(HHATAC_TF)=HHATAC_TF$celltype
+a <- BNLearning(HHATAC_TF, frac = 0.2, N_smpl = 20, params = seq(0.01,0.02,0.001), 
+                whiteList = NULL, blackList = NULL, root = 'HSC',
+                ugMethod = 'space', dagMethod = 'hc', ncores = 20,mode = 'single_cell') 
+graphviz.plot(a[[1]][[1]],shape='ellipse')
+```
+
+### combine structure set to get a reasonable network structure
+
+After `BNLearning`, we get a list of graph structures waiting to be combined. We can use the function `combineDAGsmpl` for the combination of graph structures for single cell data. Then, function `df2mat` can be used to give a glimpse; function `rmCyc` can be used for circle removement.
+
+The Emin is usually 1-2 times of node number.
+while Emax is usually 2-3 times of node number.
+
+```{r combineDAGsmpl}
+library(tidyr)
+tmp <- lapply(a,function(x){df2mat(combineDAGs(x,Emin = 1,Emax = 50))})
+b = norm_mat(tmp[[1]][ctypes,ctypes]);for (i in 2:length(tmp)) {b = b + norm_mat(tmp[[i]][ctypes,ctypes])}
+b = rmCycL(mat2df(b))
+```
+
+### modify structure according to bnlearn result
+
+Then, we can use function `trimDAG` for the adjustment of network structure. By adding HMMA and primary structure into function, trimDAG return the modified structure according to the given parameters: min_arc; max_arc; threshold_value. Note, for single cell data, we can use `gem2mem` function to transform single cell expression matrix to a cell type expression matrix.
+
+Usually, min_arc is 1 or 2, max_arc is 3 or 4, threshold_value is from 0.8 to 1.
+Sometimes, trimDAG need to be used for more than one round on different gene sets to get the desired structure. For example, here we use rank 25%-50% variable genes for the first round of trimDAG and use rank 1-25% variable genes for the second.
+
+```{r fibro_modify}
+e <-  empty.graph(ctypes)
+strc1 <- rmCycL(b)[,1:2]
+strc1[,1]=as.character(strc1[,1])
+strc1[,2]=as.character(strc1[,2])
+arcs(e) <-  strc1
+e=arc_modify(atac_data[names(HHATAC_TF_glist)[441:882],],e,2,3,1) 
+e=arc_modify(atac_data[names(HHATAC_TF_glist)[1:442],],e,2,2,1)
+```
+
+Color the graph:
+```{r fibro color}
+draw_para <- list(fill=c("HSC"='#9A9A99',
+                         "MPP"='#BF9E71',
+                         "LMPP"='#80C4CF',
+                         "CMP"='#F6ED64',
+                         "CLP"='#55A8DB',
+                         "MEP"='#E9983E',
+                         "GMP"='#97C356',
+                         "pDC"='#A1D589',
+                         "mono"='#60B358'))
+ctypes=c('HSC','MPP','LMPP','CMP','CLP','MEP','GMP','pDC','mono')
+node_myl=c('sCMP','GMP','MEP','Ery','MkP'); node_lym=c('CLP','BLP','DN1'); node_early=c('HSC','MPP')
+correct_arc=c(setEdges('HSC', ctypes, sep = "~"),
+              setEdges('MPP', ctypes, sep = "~"),
+              setEdges('CMP', ctypes[5:9], sep = "~"),
+              setEdges('GMP', 'mono', sep = "~"),
+              setEdges('LMPP', c('CLP','pDC','mono','GMP'), sep = "~"))
+wrong_arc=setEdges(ctypes, ctypes, sep = "~")[!setEdges(ctypes, ctypes, sep = "~")%in%correct_arc]
+correct_or_wrong=c(rep('black',length(correct_arc)),rep('red',length(wrong_arc)));names(correct_or_wrong) = c(correct_arc,wrong_arc)
+draw_para2 <- list(col=correct_or_wrong)
+kuaxi=c(setEdges('CMP', 'CLP', sep = "~"),
+        setEdges('LMPP', c('GMP','mono'), sep = "~"))
+not_kua=setEdges(ctypes, ctypes, sep = "~")[!setEdges(ctypes, ctypes, sep = "~")%in%kuaxi]
+lty=c(rep('dotted',length(kuaxi)),rep('solid',length(not_kua)));names(lty)=c(kuaxi,not_kua)
+draw_para3 <- list(col=correct_or_wrong,lty=lty)
+graph_atac_score=graphviz.plot(e,shape = 'circle',main=paste0(''),render = F)
+nodeRenderInfo(graph_atac_score) <- draw_para;edgeRenderInfo(graph_atac_score) <- draw_para3; renderGraph(graph_atac_score)
+```
+
+## get diffBN from single cell data
+
+After getting a desired network structure, we can use functions below to calculate the diffBN result.
+1. `bootstrap_index`: generate several sampling indexes according to metadata; the **bootstrap_times** parameter should be the same with that in function `EffectMatrix`
+2. `EffectMatrix`: alculate diffBN results based on a single cell expression data.
+3. `calculate_diffBN`: When function `EffectMatrix` is done, the ouput of `EffectMatrix` can be the input of this function to produce diffBN results of other modes
+
+Usually, **bootstrap_times** and **permutation_times** parameter ranges from 20 to 50.
+For convenience, we use 2 in this help document.
+
+```{r single_cell_diffBN}
+dat_meta=HHATAC_TF$celltype
+names(dat_meta)=rownames(HHATAC_TF@meta.data)
+index <- bootstrap_index(dat_meta,bootstrap_times=2,ratio=0.2)
+test_result <- EffectMatrix(e,HHATAC_TF,dat_meta,index,permutation_time=2,bootstrap_time=2,diffBN_mode='mean',mode='single_cell')
+diffBN <- calculate_diffBN(test_result,diffBN_mode='mean')
+head(test_result[[1]][[1]])
+table(diffBN[[1]]==test_result[[1]][[1]])
+```
+
+### try ugMethod mmhc
+
+```{r Method mmhc}
+a <- BNLearning(HHATAC_TF, frac = 0.2, N_smpl = 20, params = seq(0.01,0.02,0.001), 
+                whiteList = NULL, blackList = NULL, root = 'HSC',
+                ugMethod = 'space', dagMethod = 'mmhc', ncores = 20,mode = 'single_cell') 
+tmp <- lapply(a,function(x){df2mat(combineDAGs(x,Emin = 1,Emax = 50))})
+b = norm_mat(tmp[[1]][ctypes,ctypes]);for (i in 2:length(tmp)) {b = b + norm_mat(tmp[[i]][ctypes,ctypes])}
+b = rmCycL(mat2df(b))
+e <-  empty.graph(ctypes)
+strc1 <- (b)[,1:2];strc1[,1]=as.character(strc1[,1]);strc1[,2]=as.character(strc1[,2])
+arcs(e) <-  strc1
+e=arc_modify(atac_data[names(HHATAC_TF_glist)[441:882],],e,2,3,1) 
+e=arc_modify(atac_data[names(HHATAC_TF_glist)[1:442],],e,2,2,1)
+tmp<-graphviz.plot(e,shape = 'circle',main=paste0('Method used: ','mmhc'),render = F)
+nodeRenderInfo(tmp) <- draw_para;edgeRenderInfo(tmp) <- draw_para3;renderGraph(tmp)
+```
+
+### try different sampling ratio
+
+```{r sampling ratio 0.7}
+a <- BNLearning(HHATAC_TF, frac = 0.7, N_smpl = 20, params = seq(0.01,0.02,0.001), 
+                whiteList = NULL, blackList = NULL, root = 'HSC',
+                ugMethod = 'space', dagMethod = 'hc', ncores = 20,mode = 'single_cell') 
+tmp <- lapply(a,function(x){df2mat(combineDAGs(x,Emin = 1,Emax = 50))})
+b = norm_mat(tmp[[1]][ctypes,ctypes]);for (i in 2:length(tmp)) {b = b + norm_mat(tmp[[i]][ctypes,ctypes])}
+b = rmCycL(mat2df(b))
+e <-  empty.graph(ctypes)
+strc1 <- (b)[,1:2];strc1[,1]=as.character(strc1[,1]);strc1[,2]=as.character(strc1[,2])
+arcs(e) <-  strc1
+e=arc_modify(atac_data[names(HHATAC_TF_glist)[441:882],],e,2,3,1) 
+e=arc_modify(atac_data[names(HHATAC_TF_glist)[1:442],],e,2,2,1)
+tmp<-graphviz.plot(e,shape = 'circle',main=paste0('Sampling ratio: ','0.7'),render = F)
+nodeRenderInfo(tmp) <- draw_para;edgeRenderInfo(tmp) <- draw_para3;renderGraph(tmp)
+```
+
+## Utilizing diffBN data
+
+We first define necessary cell type sets
+```{r define cell set}
+ctypes.stem <- "HSC"
+ctypes.early <- c("MPPa", "MPPb")
+ctypes.myl <- c("sCMP", "GMP", "MEP", "MkP", "pCFU-E")
+ctypes.lym <- c("CLP", "BLP", "DN1")
+ctypes.all <- c(ctypes.stem, ctypes.early, ctypes.myl, ctypes.lym)
+ctypes <- c(rep("early", length(ctypes.stem) + length(ctypes.early)), rep("myl",
+    length(ctypes.myl)), rep("lym", length(ctypes.lym)))
+```
+`setEdges` is used for generating edge set. Use `diffScore` to get the score of 
+selected genes and use function `dsRank` to obtain ranked gene list.
+```{r calculate diffScore}
+s.diffScore <- setEdges(ctypes.all, ctypes.all, sep = "~")
+ds.diffScore <- diffScore(diffBN, s.diffScore, abs = TRUE)
+# Gene list ranked according to the diffScore
+gl.diffScore <- dsRank(ds.diffScore)
+head(gl.diffScore)
+```
