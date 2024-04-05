@@ -1,11 +1,14 @@
 # CIBER
-
 CIBER is a computational framework that leverages causal inference to dissect cellular state transitions and to identify cell fate-determining features. 
-It is applicable to datasets in the absence of continuity in cell states.
+- It can infer causality in the absence of continuity in cell states.
+- It is applicable to single-cell omics, bulk omics and microarray data.
+- It outperforms differential analyses in enriching crucial genes.
 
 ## Requirements
-- Matrix-1.3-4  
-- bnlearn-4.7
+```
+Matrix-1.3-4  
+bnlearn-4.7
+```
 
 ## Installation
 `devtools::install_github("https://github.com/Lan-lab/CIBER")`
