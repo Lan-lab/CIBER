@@ -11,7 +11,7 @@ It is applicable to datasets in the absence of continuity in cell states.
 `devtools::install_github("https://github.com/Lan-lab/CIBER")`
 
 ## Tutorial
-https://github.com/Lan-lab/CIBER/tutorials
+https://github.com/Lan-lab/CIBER/tree/main/tutorials
 
 ## Inferring causal cellular networks
 ![Fig1_副本](https://github.com/Lan-lab/CIBER/assets/21097400/89965927-8987-40c0-9054-40c24366e1d9)
