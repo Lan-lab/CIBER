@@ -1,4 +1,4 @@
-#' Title
+#' plot_brweight
 #'
 #' @param brweight numeric
 #' @param title character
@@ -6,26 +6,23 @@
 #'
 #' @return plot
 #' @export
-#'
-#' @examples
-#' print('ok')
-plot_brweight <- function(brweight,title = NULL,font_size = 40){
+plot_brweight <- function(brweight, title = NULL, font_size = 40) {
   gp <- graph::ftM2graphNEL(as.matrix(brweight$branch))
   eAttrs <- list()
   nAttrs <- list()
   attrs <- list()
   eAttrs$label <- brweight$weight
   labels <- graph::nodes(gp)
-  fsize <- rep(font_size,length(labels))
+  fsize <- rep(font_size, length(labels))
   names(fsize) <- labels
   nAttrs$fontsize <- fsize
-  nAttrs$fillcolor <- c('HSC' = "grey")
+  nAttrs$fillcolor <- c("HSC" = "grey")
   attrs$edge$fontsize <- font_size
   # attrs$edge$fontcolor <- 'red'
-  plot(gp, edgeAttrs = eAttrs, nodeAttrs = nAttrs, attrs = attrs,main = title)
+  plot(gp, edgeAttrs = eAttrs, nodeAttrs = nAttrs, attrs = attrs, main = title)
 }
 
-#' Title
+#' dagPlot
 #'
 #' @param DAG list
 #' @param weight logic
@@ -33,11 +30,9 @@ plot_brweight <- function(brweight,title = NULL,font_size = 40){
 #'
 #' @return plot
 #' @export
-#'
-#' @examples
-#' print('ok')
-dagPlot <- function(DAG, weight = FALSE, ...){
-  gp <- DAG[,c("from","to")] %>% as.matrix %>%
+dagPlot <- function(DAG, weight = FALSE, ...) {
+  gp <- DAG[, c("from", "to")] %>%
+    as.matrix() %>%
     graph::ftM2graphNEL(., edgemode = "directed")
   eAttrs <- list()
   if (isTRUE(weight)) {
@@ -47,7 +42,7 @@ dagPlot <- function(DAG, weight = FALSE, ...){
   plot(gp, edgeAttrs = eAttrs, ...)
 }
 
-#' Title
+#' ugPlot
 #'
 #' @param ug data.frame
 #' @param weight logic
@@ -55,21 +50,20 @@ dagPlot <- function(DAG, weight = FALSE, ...){
 #'
 #' @return plot
 #' @export
-#'
-#' @examples
-#' print('ok')
-ugPlot <- function(ug, weight = FALSE, ...){
-  gp <- ug[,c("node1","node2")] %>% as.matrix %>%
+ugPlot <- function(ug, weight = FALSE, ...) {
+  gp <- ug[, c("node1", "node2")] %>%
+    as.matrix() %>%
     graph::ftM2graphNEL(., edgemode = "undirected")
   eAttrs <- list()
   if (isTRUE(weight)) {
-    ug <- ug %>% dplyr::mutate(edge1 = paste0(ug$node1,'~',ug$node2),
-                               edge2 = paste0(ug$node2,'~',ug$node1))
-    edge <- alter(paste0(ug$node1,'~',ug$node2), paste0(ug$node2,'~',ug$node1))
+    ug <- ug %>% dplyr::mutate(
+      edge1 = paste0(ug$node1, "~", ug$node2),
+      edge2 = paste0(ug$node2, "~", ug$node1)
+    )
+    edge <- alter(paste0(ug$node1, "~", ug$node2), paste0(ug$node2, "~", ug$node1))
     rownames(ug) <- edge[edge %in% graph::edgeNames(gp)]
-    eAttrs$lwd <- ug[graph::edgeNames(gp),"strength"]
+    eAttrs$lwd <- ug[graph::edgeNames(gp), "strength"]
     names(eAttrs$lwd) <- graph::edgeNames(gp)
   }
   plot(gp, edgeAttrs = eAttrs)
 }
-

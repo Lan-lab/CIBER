@@ -10,10 +10,10 @@
 #' @examples
 #' ctypes <- c("MPPa", "MPPb")
 #' s.diffScore <- setEdges(ctypes, ctypes, sep = "~")
-setEdges <- function(fromSet, toSet, sep='~'){
-  edges <- paste(rep(fromSet, each=length(toSet)), toSet, sep=sep)
-  selfs <- paste(fromSet, fromSet, sep=sep)
-  return(setdiff(edges,selfs))
+setEdges <- function(fromSet, toSet, sep = "~") {
+  edges <- paste(rep(fromSet, each = length(toSet)), toSet, sep = sep)
+  selfs <- paste(fromSet, fromSet, sep = sep)
+  return(setdiff(edges, selfs))
 }
 
 #' Get diffScore
@@ -27,8 +27,10 @@ setEdges <- function(fromSet, toSet, sep='~'){
 #'
 #' @examples
 #' ds.diffScore <- diffScore(diffBN, s.diffScore, abs = TRUE)
-diffScore <- function(diffBN, edgeSet, abs=TRUE){
-  if(abs){diffBN <- abs(diffBN)}
+diffScore <- function(diffBN, edgeSet, abs = TRUE) {
+  if (abs) {
+    diffBN <- abs(diffBN)
+  }
   dm <- diffBN[intersect(colnames(diffBN), edgeSet)]
   return(rowSums(dm))
 }
@@ -42,8 +44,8 @@ diffScore <- function(diffBN, edgeSet, abs=TRUE){
 #'
 #' @examples
 #' gl.diffScore <- dsRank(ds.diffScore)
-dsRank <- function(diffScores){
-  diffScores %>% sort(decreasing = TRUE) %>% names()
+dsRank <- function(diffScores) {
+  diffScores %>%
+    sort(decreasing = TRUE) %>%
+    names()
 }
-
-

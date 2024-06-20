@@ -2,7 +2,7 @@
 % Please edit documentation in R/geneck_methods.R
 \name{network.space}
 \alias{network.space}
-\title{Title}
+\title{Use space package to predict graph structure}
 \usage{
 network.space(expr.data, alpha)
 }
@@ -15,8 +15,5 @@ network.space(expr.data, alpha)
 data.frame
 }
 \description{
-Title
-}
-\examples{
-print('')
+Use space package to predict graph structure
 }

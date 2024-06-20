@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_func.R
 \name{ugPlot}
 \alias{ugPlot}
-\title{Title}
+\title{ugPlot}
 \usage{
 ugPlot(ug, weight = FALSE, ...)
 }
@@ -17,8 +17,5 @@ ugPlot(ug, weight = FALSE, ...)
 plot
 }
 \description{
-Title
-}
-\examples{
-print('ok')
+ugPlot
 }

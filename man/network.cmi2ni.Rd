@@ -2,7 +2,7 @@
 % Please edit documentation in R/geneck_methods.R
 \name{network.cmi2ni}
 \alias{network.cmi2ni}
-\title{Title}
+\title{Use cmi2ni to predict graph structure}
 \usage{
 network.cmi2ni(expr.data, lambda)
 }
@@ -15,8 +15,5 @@ network.cmi2ni(expr.data, lambda)
 data.frame
 }
 \description{
-Title
-}
-\examples{
-print('ok')
+Use cmi2ni to predict graph structure
 }

@@ -14,6 +14,6 @@ HMMA
 The test data of microarray expression matrix of HSC differentiation, have 11 cell types and 2 lineages
 }
 \examples{
-  head(HMMA)
+head(HMMA)
 }
 \keyword{datasets}

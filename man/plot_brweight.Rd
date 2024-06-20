@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_func.R
 \name{plot_brweight}
 \alias{plot_brweight}
-\title{Title}
+\title{plot_brweight}
 \usage{
 plot_brweight(brweight, title = NULL, font_size = 40)
 }
@@ -17,8 +17,5 @@ plot_brweight(brweight, title = NULL, font_size = 40)
 plot
 }
 \description{
-Title
-}
-\examples{
-print('ok')
+plot_brweight
 }

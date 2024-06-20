@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_func.R
 \name{dagPlot}
 \alias{dagPlot}
-\title{Title}
+\title{dagPlot}
 \usage{
 dagPlot(DAG, weight = FALSE, ...)
 }
@@ -17,8 +17,5 @@ dagPlot(DAG, weight = FALSE, ...)
 plot
 }
 \description{
-Title
-}
-\examples{
-print('ok')
+dagPlot
 }
