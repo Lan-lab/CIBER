@@ -1,3 +1,0 @@
-*.rda filter=lfs diff=lfs merge=lfs -text
-data/HMMA.rda filter=lfs diff=lfs merge=lfs -text
-data/HMR.rda filter=lfs diff=lfs merge=lfs -text
