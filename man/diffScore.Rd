@@ -19,6 +19,3 @@ list of diffScores
 \description{
 Get diffScore
 }
-\examples{
-ds.diffScore <- diffScore(diffBN, s.diffScore, abs = TRUE)
-}

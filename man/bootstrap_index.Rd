@@ -19,6 +19,3 @@ list of index for diffBN
 \description{
 bootstrap_index: create sampling index for run_diffBN
 }
-\examples{
-index <- bootstrap_index(dat_fibro_meta, bootstrap_times = 20, ratio = 0.4)
-}

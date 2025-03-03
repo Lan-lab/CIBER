@@ -15,6 +15,3 @@ list of ranked gene names
 \description{
 Rank genes according to diffScores
 }
-\examples{
-gl.diffScore <- dsRank(ds.diffScore)
-}

@@ -51,13 +51,3 @@ learnDAG(
 \code{learnDAG} uses \code{BNLearning} to generate a set of possible DAGs representing
 the differentiation network and analyses these graphs to give the final DAG.
 }
-\examples{
-dat <- HHATAC_TF
-Idents(dat) <- dat$celltype
-outputDAG <- learnDAG(dat,
-  frac = 0.2, N_smpl = 20, params = seq(0.01, 0.02, 0.001),
-  whiteList = NULL, blackList = NULL, root = "HSC",
-  ugMethod = "space", dagMethod = "hc", ncores = 20,
-  mode = "single_cell", Emin = 1, Emax = 50
-)
-}

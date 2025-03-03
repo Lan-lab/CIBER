@@ -1,15 +1,21 @@
 Package: ciber
-Title: Learn the underlying hierarchies in the data
-Version: 0.0.0.9000
-Authors@R: 
-    person("Hengyi", "Xu", , "xhy18006@student.pumc.edu.cn", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0002-5772-0661"))
-Description: Learn the underlying hierarchies in the data
+Title: Inferring causal cellular networks and intrinsic biological effects using 
+  graphical models and optimal transport
+Version: 1.0.0
+Authors@R:
+  c(
+    person("Longchen", "Xu", email = "xlc17@tsinghua.org.cn", role = c("aut", "cre")),
+    person("Hengyi", "Xu", email = "xhy18006@student.pumc.edu.cn", role = c("aut"), 
+      comment = list(ORCID = "0000-0002-5772-0661")),
+    person("Zhemeng", "Rao", email = "raozm22@mails.tsinghua.edu.cn", role = c("ctb"))
+  )
+Description: Using topology-optimized Bayesian networks and structural causal model 
+  to infer causal cellular networks and identify cell-fate determining genes.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
-Imports: bnlearn, corpcor, doParallel, dplyr, foreach,
+RoxygenNote: 7.3.2
+Imports:Seurat, bnlearn, corpcor, doParallel, dplyr, foreach,
         graph, igraph, infotheo, magrittr, MASS, Matrix, matrixStats,
         parallel, Rgraphviz, rlang, statmod, tibble, tidyr, tidyselect, space
 LinkingTo: Rcpp
@@ -17,5 +23,5 @@ Depends: R (>= 3.5.0)
 LazyData: true
 NeedsCompilation: no
 Packaged: 2024-03-20 14:02:20 UTC; lanrotate
-Author: Hengyi Xu [aut, cre] (<https://orcid.org/0000-0002-5772-0661>)
-Maintainer: Hengyi Xu <xhy18006@student.pumc.edu.cn>
+Author: Longchen Xu [aut, cre], Hengyi Xu [aut] (<https://orcid.org/0000-0002-5772-0661>), Zhemeng Rao [ctb]
+Maintainer: Longchen Xu <xlc17@tsinghua.org.cn>

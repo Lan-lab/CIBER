@@ -25,8 +25,6 @@ setEdges <- function(fromSet, toSet, sep = "~") {
 #' @return list of diffScores
 #' @export
 #'
-#' @examples
-#' ds.diffScore <- diffScore(diffBN, s.diffScore, abs = TRUE)
 diffScore <- function(diffBN, edgeSet, abs = TRUE) {
   if (abs) {
     diffBN <- abs(diffBN)
@@ -42,8 +40,6 @@ diffScore <- function(diffBN, edgeSet, abs = TRUE) {
 #' @return list of ranked gene names
 #' @export
 #'
-#' @examples
-#' gl.diffScore <- dsRank(ds.diffScore)
 dsRank <- function(diffScores) {
   diffScores %>%
     sort(decreasing = TRUE) %>%

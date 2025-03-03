@@ -182,14 +182,6 @@ DG_smpl <- function(dat, frac = 0.3, N_smpl = 10, params = c(1:100) / 100,
 #' @importFrom foreach %do%
 #' @import bnlearn
 #'
-#' @examples
-#' dat <- HHATAC_TF
-#' Idents(dat) <- dat$celltype
-#' a <- BNLearning(dat,
-#'   frac = 0.2, N_smpl = 20, params = seq(0.01, 0.02, 0.001),
-#'   whiteList = NULL, blackList = NULL, root = "HSC",
-#'   ugMethod = "space", dagMethod = "hc", ncores = 20, mode = "single_cell"
-#' )
 BNLearning <- function(dat, frac = 0.3, N_smpl = 10, params = c(1:100) / 100,
                        whiteList = NULL, blackList = NULL, root = NULL,
                        ugMethod = "cmi2ni", dagMethod = "hc", ncores = 1,
@@ -233,15 +225,6 @@ BNLearning <- function(dat, frac = 0.3, N_smpl = 10, params = c(1:100) / 100,
 #'
 #' @export
 #'
-#' @examples
-#' dat <- HHATAC_TF
-#' Idents(dat) <- dat$celltype
-#' outputDAG <- learnDAG(dat,
-#'   frac = 0.2, N_smpl = 20, params = seq(0.01, 0.02, 0.001),
-#'   whiteList = NULL, blackList = NULL, root = "HSC",
-#'   ugMethod = "space", dagMethod = "hc", ncores = 20,
-#'   mode = "single_cell", Emin = 1, Emax = 50
-#' )
 learnDAG <- function(dat, frac = 0.3, N_smpl = 10, params = c(1:100) / 100,
                      whiteList = NULL, blackList = NULL, root = NULL,
                      ugMethod = "cmi2ni", dagMethod = "hc", ncores = 1,
@@ -373,8 +356,6 @@ hasCyc <- function(dS) {
 #' @return list of index for diffBN
 #' @export
 #'
-#' @examples
-#' index <- bootstrap_index(dat_fibro_meta, bootstrap_times = 20, ratio = 0.4)
 bootstrap_index <- function(meta, bootstrap_times, ratio) {
   celltype <- names(table(meta))
   index <- list(NULL)

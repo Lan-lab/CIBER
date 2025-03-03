@@ -11,7 +11,7 @@ PerturbResult(
   index = NULL,
   n_sample = 1,
   n_permutation = 1,
-  deletion = T,
+  deletion = F,
   mode = "single_cell",
   ncores = 1,
   verbal = F,

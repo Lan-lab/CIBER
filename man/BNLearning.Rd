@@ -47,12 +47,3 @@ A list of net structures of different parameters and different sampling
 \description{
 BNLearning is the function that considers all the parameters in "params" and cell samplings to get a group of net structures based on ugMethod and dagMethod. Compared with DG_grid, DG_smpl is suitable for single cell data in SeuratObject format
 }
-\examples{
-dat <- HHATAC_TF
-Idents(dat) <- dat$celltype
-a <- BNLearning(dat,
-  frac = 0.2, N_smpl = 20, params = seq(0.01, 0.02, 0.001),
-  whiteList = NULL, blackList = NULL, root = "HSC",
-  ugMethod = "space", dagMethod = "hc", ncores = 20, mode = "single_cell"
-)
-}
