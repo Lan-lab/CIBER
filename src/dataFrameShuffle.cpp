@@ -1,4 +1,5 @@
 #include <Rcpp.h>
+#include <random>
 
 //' @useDynLib ciber
 
